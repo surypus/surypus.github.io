@@ -1,5 +1,5 @@
 const CACHE = 'surypus-v2';
-const STATIC = ['/surypus/', '/surypus/index.html', '/surypus/offline.html', '/surypus/css/style.css', '/surypus/js/app.js', '/surypus/js/api.js'];
+const STATIC = ['', 'index.html', 'offline.html', 'css/style.css', 'js/app.js', 'js/api.js'];
 const DB_NAME = 'surypus-offline';
 const DB_VERSION = 1;
 
@@ -23,7 +23,7 @@ self.addEventListener('push', e => {
   const data = e.data ? e.data.json() : {};
   const title = data.title || 'Surypus ERP';
   const body = data.body || '';
-  const icon = data.icon || '/surypus/manifest.json';
+  const icon = data.icon || 'manifest.json';
   e.waitUntil(
     self.registration.showNotification(title, {
       body,
@@ -37,7 +37,7 @@ self.addEventListener('push', e => {
 
 self.addEventListener('notificationclick', e => {
   e.notification.close();
-  const urlToOpen = e.notification.data?.url || '/surypus/';
+  const urlToOpen = e.notification.data?.url || '';
   e.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
       for (const client of clients) {
@@ -51,7 +51,7 @@ self.addEventListener('notificationclick', e => {
 // Fetch: network-first for API, cache-first for static, offline.html for navigation
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  if (url.pathname.startsWith('/surypus/api/')) {
+  if (url.pathname.startsWith('api/')) {
     e.respondWith(networkFirstWithIDB(e.request));
   } else if (e.request.mode === 'navigate') {
     e.respondWith(networkFirstWithFallback(e.request));
@@ -70,7 +70,7 @@ async function networkFirstWithFallback(request) {
     return response;
   } catch {
     const cached = await caches.match(request);
-    return cached || caches.match('/surypus/offline.html');
+    return cached || caches.match('offline.html');
   }
 }
 
