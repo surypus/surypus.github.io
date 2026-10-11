@@ -1,7 +1,7 @@
-const CACHE = 'surypus-v2';
-const STATIC = ['', 'index.html', 'offline.html', 'css/style.css', 'js/app.js', 'js/api.js'];
+const CACHE = 'surypus-v3';
+const STATIC = ['', 'index.html', 'offline.html', 'css/style.css', 'js/app.js', 'js/api.js', 'manifest.json'];
 const DB_NAME = 'surypus-offline';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 // Install: cache static assets
 self.addEventListener('install', e => {
@@ -51,7 +51,7 @@ self.addEventListener('notificationclick', e => {
 // Fetch: network-first for API, cache-first for static, offline.html for navigation
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  if (url.pathname.startsWith('api/')) {
+  if (url.pathname.startsWith('/api/')) {
     e.respondWith(networkFirstWithIDB(e.request));
   } else if (e.request.mode === 'navigate') {
     e.respondWith(networkFirstWithFallback(e.request));
@@ -81,6 +81,9 @@ function openDB() {
       const db = e.target.result;
       if (!db.objectStoreNames.contains('api-cache')) {
         db.createObjectStore('api-cache', { keyPath: 'url' });
+      }
+      if (!db.objectStoreNames.contains('sync-queue')) {
+        db.createObjectStore('sync-queue', { keyPath: 'id', autoIncrement: true });
       }
     };
     req.onsuccess = e => resolve(e.target.result);
